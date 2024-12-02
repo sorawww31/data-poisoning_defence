@@ -7,8 +7,8 @@ Output: mixed_x, additional_labels, mixing_lambda
 except for maxup, which returns n tuples of this output signature.
 """
 
-import torch
 import numpy as np
+import torch
 
 
 class Mixup(torch.nn.Module):

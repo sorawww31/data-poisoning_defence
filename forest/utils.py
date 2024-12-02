@@ -1,15 +1,14 @@
 """Various utilities."""
 
-import os
 import csv
-import socket
 import datetime
-
+import os
+import random
+import socket
 from collections import defaultdict
 
-import torch
-import random
 import numpy as np
+import torch
 
 from .consts import NON_BLOCKING
 

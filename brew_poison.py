@@ -16,13 +16,14 @@ This script goes through the following steps:
   starting from this base model.
 """
 
-import torch
-
 import datetime
 import time
 
+import torch
+
 import forest
 from forest.filtering_defenses import get_defense
+
 torch.backends.cudnn.benchmark = forest.consts.BENCHMARK
 torch.multiprocessing.set_sharing_strategy(forest.consts.SHARING_STRATEGY)
 

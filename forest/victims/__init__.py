@@ -5,6 +5,7 @@ from .victim_distributed import _VictimDistributed
 from .victim_ensemble import _VictimEnsemble
 from .victim_single import _VictimSingle
 
+
 def Victim(args, setup=dict(device=torch.device('cpu'), dtype=torch.float)):
     """Implement Main interface."""
     if args.local_rank is not None:
@@ -16,4 +17,5 @@ def Victim(args, setup=dict(device=torch.device('cpu'), dtype=torch.float)):
 
 
 from ..hyperparameters import training_strategy
+
 __all__ = ['Victim', 'training_strategy']

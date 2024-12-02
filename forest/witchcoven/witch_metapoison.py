@@ -1,14 +1,14 @@
 """Main class, holding information about models and training/testing routines."""
 
-import torch
-import higher
-
 from collections import OrderedDict
 
+import higher
+import torch
+
 from ..consts import BENCHMARK
+
 torch.backends.cudnn.benchmark = BENCHMARK
 from .modules import MetaMonkey
-
 from .witch_base import _Witch
 
 

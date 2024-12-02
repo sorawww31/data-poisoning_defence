@@ -2,11 +2,12 @@
 
 import torch
 
-from .models import get_model
-from .training import get_optimizers, run_step
+from ..consts import BENCHMARK, SHARING_STRATEGY
 from ..hyperparameters import training_strategy
 from ..utils import average_dicts
-from ..consts import BENCHMARK, SHARING_STRATEGY
+from .models import get_model
+from .training import get_optimizers, run_step
+
 torch.backends.cudnn.benchmark = BENCHMARK
 torch.multiprocessing.set_sharing_strategy(SHARING_STRATEGY)
 

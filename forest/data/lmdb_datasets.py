@@ -1,15 +1,15 @@
 """LMBD dataset wrap an existing dataset and create a database if necessary."""
 
-import os
 import io
+import os
 import pickle
-
 import platform
-import lmdb
 
+import lmdb
+import numpy as np
 import torch
 import torchvision
-import numpy as np
+
 
 class LMDBDataset(torch.utils.data.Dataset):
     """Implement LMDB caching and access.

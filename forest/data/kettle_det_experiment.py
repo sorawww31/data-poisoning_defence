@@ -1,8 +1,9 @@
 """Data class, holding information about dataloaders and poison ids."""
 
 import numpy as np
-from .kettle_base import _Kettle
+
 from .datasets import Subset
+from .kettle_base import _Kettle
 
 
 class KettleDeterministic(_Kettle):

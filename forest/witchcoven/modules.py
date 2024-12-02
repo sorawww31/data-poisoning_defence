@@ -1,11 +1,13 @@
 """For monkey-patching into meta-learning frameworks."""
-import torch
-import torch.nn.functional as F
+import warnings
 from collections import OrderedDict
 from functools import partial
-import warnings
+
+import torch
+import torch.nn.functional as F
 
 from ..consts import BENCHMARK
+
 torch.backends.cudnn.benchmark = BENCHMARK
 
 DEBUG = False  # Emit warning messages when patching. Use this to bootstrap new architectures.

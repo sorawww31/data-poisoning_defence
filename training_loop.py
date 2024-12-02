@@ -8,8 +8,8 @@ Several helper files from forest/ are imported below which have to be bundled wh
 
 import torch
 
-from forest.victims.batched_attacks import construct_attack
 from forest.data.mixing_data_augmentations import Cutmix
+from forest.victims.batched_attacks import construct_attack
 
 # hyperparameters:
 epochs = 40

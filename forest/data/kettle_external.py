@@ -1,10 +1,12 @@
 """Data class, holding information about dataloaders and poison ids."""
 
-import torch
 import pickle
 
+import torch
+
+from ..consts import NORMALIZE, PIN_MEMORY, cifar10_mean, cifar10_std
 from .kettle_base import _Kettle
-from ..consts import PIN_MEMORY, NORMALIZE, cifar10_mean, cifar10_std
+
 
 class KettleExternal(_Kettle):
     """Generate a dataset definition completely from file."""

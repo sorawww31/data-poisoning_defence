@@ -2,9 +2,8 @@
 
 import pickle
 
-from .kettle_base import _Kettle
 from .datasets import Subset
-
+from .kettle_base import _Kettle
 
 
 class KettleBenchmark(_Kettle):

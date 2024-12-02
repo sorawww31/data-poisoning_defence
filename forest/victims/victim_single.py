@@ -1,16 +1,17 @@
 """Single model default victim class."""
 
-import torch
-import numpy as np
-
-from collections import defaultdict
 import copy
+from collections import defaultdict
 
-from .models import get_model
-from .training import get_optimizers
+import numpy as np
+import torch
+
+from ..consts import BENCHMARK
 from ..hyperparameters import training_strategy
 from ..utils import set_random_seed
-from ..consts import BENCHMARK
+from .models import get_model
+from .training import get_optimizers
+
 torch.backends.cudnn.benchmark = BENCHMARK
 
 from .victim_base import _VictimBase

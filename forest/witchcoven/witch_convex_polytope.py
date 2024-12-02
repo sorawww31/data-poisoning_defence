@@ -1,13 +1,15 @@
 """Main class, holding information about models and training/testing routines."""
 
+import numpy as np
 import torch
 
-import numpy as np
 from ..consts import BENCHMARK
+
 torch.backends.cudnn.benchmark = BENCHMARK
 
-from .witch_base import _Witch
 from ..utils import bypass_last_layer
+from .witch_base import _Witch
+
 
 class WitchConvexPolytope(_Witch):
     """Brew poison frogs variant with averaged feature matching instead of sums of feature matches.

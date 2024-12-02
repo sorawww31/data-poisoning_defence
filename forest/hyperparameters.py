@@ -1,6 +1,6 @@
 """Optimization setups."""
 
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 
 BRITTLE_NETS = ['convnet', 'mobilenet', 'vgg', 'alexnet']  # handled with lower learning rate
 

@@ -11,10 +11,10 @@ This code is taken from https://github.com/aks2203/poisoning-benchmark/blob/mast
 See the paper "Inverted Residuals and Linear Bottlenecks:
 Mobile Networks for Classification, Detection and Segmentation" for more details.
 """
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 
 class Block(nn.Module):

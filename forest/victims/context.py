@@ -1,6 +1,7 @@
 """Helper functions for context managing."""
 import torch
 
+
 class GPUContext():
     """GPU context for quick (code-wise) moves to and from GPU."""
 

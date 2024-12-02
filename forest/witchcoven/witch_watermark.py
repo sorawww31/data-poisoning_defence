@@ -1,12 +1,12 @@
 """Main class, holding information about models and training/testing routines."""
 
 import torch
+
 from ..consts import BENCHMARK
+
 torch.backends.cudnn.benchmark = BENCHMARK
 
 from .witch_base import _Witch
-
-
 
 
 class WitchWatermark(_Witch):

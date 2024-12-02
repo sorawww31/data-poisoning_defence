@@ -2,6 +2,7 @@
 
 import argparse
 
+
 def options():
     """Construct the central argument parser, filled with useful defaults.
 

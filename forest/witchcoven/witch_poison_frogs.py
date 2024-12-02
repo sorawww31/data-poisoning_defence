@@ -1,11 +1,14 @@
 """Main class, holding information about models and training/testing routines."""
 
 import torch
-from ..utils import bypass_last_layer
+
 from ..consts import BENCHMARK
+from ..utils import bypass_last_layer
+
 torch.backends.cudnn.benchmark = BENCHMARK
 
 from .witch_base import _Witch
+
 
 class WitchFrogs(_Witch):
     """Brew poison frogs poison with given arguments.

@@ -1,14 +1,19 @@
 """Interface for poison recipes."""
-from .witch_matching import WitchGradientMatching, WitchGradientMatchingNoisy, WitchGradientMatchingHidden, WitchMatchingMultiTarget
-from .witch_metapoison import WitchMetaPoison, WitchMetaPoisonHigher, WitchMetaPoison_v3
-from .witch_watermark import WitchWatermark
-from .witch_poison_frogs import WitchFrogs
-from .witch_bullseye import WitchBullsEye
-from .witch_patch import WitchPatch
-from .witch_htbd import WitchHTBD
-from .witch_convex_polytope import WitchConvexPolytope
-
 import torch
+
+from .witch_bullseye import WitchBullsEye
+from .witch_convex_polytope import WitchConvexPolytope
+from .witch_htbd import WitchHTBD
+from .witch_matching import (
+    WitchGradientMatching,
+    WitchGradientMatchingHidden,
+    WitchGradientMatchingNoisy,
+    WitchMatchingMultiTarget,
+)
+from .witch_metapoison import WitchMetaPoison, WitchMetaPoison_v3, WitchMetaPoisonHigher
+from .witch_patch import WitchPatch
+from .witch_poison_frogs import WitchFrogs
+from .witch_watermark import WitchWatermark
 
 
 def Witch(args, setup=dict(device=torch.device('cpu'), dtype=torch.float)):

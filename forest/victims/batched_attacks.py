@@ -1,8 +1,9 @@
 """Implement batch-level attack steps."""
 
-import torch
-import higher
 import random
+
+import higher
+import torch
 
 from ..utils import _gradient_matching, bypass_last_layer
 

@@ -1,11 +1,13 @@
 """Main class, holding information about models and training/testing routines."""
 
 import torch
+
 from ..consts import BENCHMARK, NON_BLOCKING
 from ..utils import bypass_last_layer
 
 torch.backends.cudnn.benchmark = BENCHMARK
 from .witch_base import _Witch
+
 
 class WitchGradientMatching(_Witch):
     """Brew passenger poison with given arguments.

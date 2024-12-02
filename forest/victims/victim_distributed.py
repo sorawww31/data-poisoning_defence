@@ -1,18 +1,20 @@
 """Definition for multiple victims that can run concurrently."""
 
-import torch
-import numpy as np
 from collections import defaultdict
 
-from .models import get_model
+import numpy as np
+import torch
+
+from ..consts import BENCHMARK
 from ..hyperparameters import training_strategy
 from ..utils import set_random_seed
-from ..consts import BENCHMARK
+from .models import get_model
 
 torch.backends.cudnn.benchmark = BENCHMARK
 
-from .victim_single import _VictimSingle
 from .training import get_optimizers
+from .victim_single import _VictimSingle
+
 
 class _VictimDistributed(_VictimSingle):
     """Implement model-specific code and behavior for multiple models on an unspecified number of  GPUs and nodes.

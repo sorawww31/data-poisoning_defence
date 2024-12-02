@@ -1,19 +1,19 @@
 """Super-classes of common datasets to extract id information per image."""
-import torch
-import torchvision
-
-from ..consts import *   # import all mean/std constants
-
-import torchvision.transforms as transforms
-from PIL import Image
-import os
 import glob
-
-from torchvision.datasets.imagenet import load_meta_file
-from torchvision.datasets.utils import verify_str_arg
+import os
 
 # Block ImageNet corrupt EXIF warnings
 import warnings
+
+import torch
+import torchvision
+import torchvision.transforms as transforms
+from PIL import Image
+from torchvision.datasets.imagenet import load_meta_file
+from torchvision.datasets.utils import verify_str_arg
+
+from ..consts import *  # import all mean/std constants
+
 warnings.filterwarnings("ignore", "(Possibly )?corrupt EXIF data", UserWarning)
 
 

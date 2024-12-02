@@ -1,22 +1,26 @@
 """Data class, holding information about dataloaders and poison ids."""
 
-import torch
-import numpy as np
-
-import pickle
-
 import datetime
 import os
+import pickle
 import random
+
+import numpy as np
 import PIL
+import torch
 
-from .datasets import construct_datasets, Subset
+from ..consts import (
+    BENCHMARK,
+    DISTRIBUTED_BACKEND,
+    MAX_THREADING,
+    NORMALIZE,
+    PIN_MEMORY,
+    SHARING_STRATEGY,
+)
 from .cached_dataset import CachedDataset
-
+from .datasets import Subset, construct_datasets
 from .diff_data_augmentation import RandomTransform
-from .mixing_data_augmentations import Mixup, Cutout, Cutmix, Maxup
-
-from ..consts import PIN_MEMORY, NORMALIZE, BENCHMARK, DISTRIBUTED_BACKEND, SHARING_STRATEGY, MAX_THREADING
+from .mixing_data_augmentations import Cutmix, Cutout, Maxup, Mixup
 
 torch.backends.cudnn.benchmark = BENCHMARK
 torch.multiprocessing.set_sharing_strategy(SHARING_STRATEGY)

@@ -8,23 +8,25 @@ Replace THISISYOURSERVICEACCOUNT.json in line 40 with your service account crede
 
 
 
+import datetime
 import os
 import pickle
+import sys
+from argparse import ArgumentParser
+from time import sleep
+
+import google
+import torch
+import torchvision
+from google.cloud import automl, storage
+
 # from PIL import Image
 # import numpy as np
 
-from google.cloud import automl, storage
 
-import google
-from argparse import ArgumentParser
 # from multiprocessing import Pool
 
-import sys
-from time import sleep
-import datetime
 
-import torch
-import torchvision
 
 
 def imagenet_to_gcloud(kettle, clean_uid, bucketname, format, dryrun=False):

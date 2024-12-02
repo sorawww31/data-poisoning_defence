@@ -1,10 +1,10 @@
 """Model definitions."""
 
+from collections import OrderedDict
+
 import torch
 import torchvision
 from torchvision.models.resnet import BasicBlock, Bottleneck
-
-from collections import OrderedDict
 
 from .mobilenet import MobileNetV2
 from .vgg import VGG

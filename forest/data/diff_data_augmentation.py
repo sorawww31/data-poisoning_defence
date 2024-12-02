@@ -10,6 +10,7 @@ The rest are basically sanity checks and tests.
 import torch
 import torch.nn.functional as F
 
+
 class RandomTransform(torch.nn.Module):
     """Crop the given batch of tensors at a random location.
 

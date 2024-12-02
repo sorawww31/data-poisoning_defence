@@ -1,20 +1,22 @@
 """Definition for multiple victims that share a single GPU (sequentially)."""
 
-import torch
-import numpy as np
-
-from collections import defaultdict
 import copy
+from collections import defaultdict
 
-from .models import get_model
-from ..hyperparameters import training_strategy
-from ..utils import set_random_seed, average_dicts
+import numpy as np
+import torch
+
 from ..consts import BENCHMARK
+from ..hyperparameters import training_strategy
+from ..utils import average_dicts, set_random_seed
 from .context import GPUContext
+from .models import get_model
+
 torch.backends.cudnn.benchmark = BENCHMARK
 
-from .victim_base import _VictimBase
 from .training import get_optimizers
+from .victim_base import _VictimBase
+
 
 class _VictimEnsemble(_VictimBase):
     """Implement model-specific code and behavior for multiple models on a single GPU.

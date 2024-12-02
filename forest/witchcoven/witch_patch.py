@@ -3,13 +3,14 @@
 import torch
 import torchvision
 from PIL import Image
-from ..consts import BENCHMARK
+
 from forest.data import datasets
+
+from ..consts import BENCHMARK
+
 torch.backends.cudnn.benchmark = BENCHMARK
 
 from .witch_base import _Witch
-
-
 
 
 class WitchPatch(_Witch):

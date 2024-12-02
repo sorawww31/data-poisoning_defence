@@ -1,11 +1,11 @@
 """Data class, holding information about dataloaders and poison ids."""
 
-import torch
 import numpy as np
+import torch
 
-from .kettle_base import _Kettle
 from ..utils import set_random_seed
 from .datasets import Subset
+from .kettle_base import _Kettle
 
 
 class KettleRandom(_Kettle):

@@ -6,13 +6,14 @@ This only parallelizes the ensembling!
 
 """
 
-import socket
 import datetime
+import socket
 import time
 
-
 import torch
+
 import forest
+
 torch.backends.cudnn.benchmark = forest.consts.BENCHMARK
 torch.multiprocessing.set_sharing_strategy(forest.consts.SHARING_STRATEGY)
 

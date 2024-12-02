@@ -2,16 +2,17 @@
 
 Run this script from the top folder."""
 
-import torch
-
 import datetime
-import time
 import os
-import numpy as np
 import pickle
+import time
+
+import numpy as np
+import torch
 
 import forest
 from forest.filtering_defenses import get_defense
+
 torch.backends.cudnn.benchmark = forest.consts.BENCHMARK
 torch.multiprocessing.set_sharing_strategy(forest.consts.SHARING_STRATEGY)
 

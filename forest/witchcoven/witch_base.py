@@ -1,15 +1,18 @@
 """Main class, holding information about models and training/testing routines."""
 
-import torch
 import warnings
 
+import torch
+
+from ..consts import BENCHMARK, NON_BLOCKING
 from ..utils import cw_loss
-from ..consts import NON_BLOCKING, BENCHMARK
+
 torch.backends.cudnn.benchmark = BENCHMARK
 
-from ..victims.victim_single import _VictimSingle
 from ..victims.batched_attacks import construct_attack
 from ..victims.training import _split_data
+from ..victims.victim_single import _VictimSingle
+
 
 class _Witch():
     """Brew poison with given arguments.

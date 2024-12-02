@@ -1,12 +1,13 @@
-import torch
-from forest.victims.models import ResNet, resnet_picker
-
 import os
 import pickle
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
+import torch
+
+from forest.victims.models import ResNet, resnet_picker
 
 
 def generate_plot_centroid(feat_path,model_path,target_class,base_class, poison_ids, title, device):
@@ -324,7 +325,7 @@ def generate_plot_lda_patch(feat_path,model_path, target_class,base_class, poiso
     
     ol_tags = np.concatenate([tags[tags == str(base_class)], tags[tags == str(target_class)], tags[tags == str('poison')]])
     ol_feats = np.concatenate([basefeats, targfeats, poisonfeats])
-#     print(ol_tags.shape, ol_feats.shape)
+    print(ol_tags.shape, ol_feats.shape)
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
     lda = LinearDiscriminantAnalysis(n_components=2)
     X_r2 = lda.fit(ol_feats, ol_tags).transform(ol_feats)

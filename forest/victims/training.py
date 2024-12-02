@@ -1,13 +1,13 @@
 """Repeatable code parts concerning optimization and training schedules."""
 
-import torch
-
 from collections import defaultdict
 
-from .utils import print_and_save_stats
-from .batched_attacks import construct_attack
+import torch
 
-from ..consts import NON_BLOCKING, BENCHMARK
+from ..consts import BENCHMARK, NON_BLOCKING
+from .batched_attacks import construct_attack
+from .utils import print_and_save_stats
+
 torch.backends.cudnn.benchmark = BENCHMARK
 
 def run_step(kettle, poison_delta, epoch, stats, model, defs, optimizer, scheduler, loss_fn, pretraining_phase=False):

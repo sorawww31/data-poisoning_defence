@@ -1,6 +1,7 @@
 """Implement three filter-based defenses."""
-import torch
 import numpy as np
+import torch
+
 
 def get_defense(args):
     if args.filter_defense.lower() == 'spectral_signatures':

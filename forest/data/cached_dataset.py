@@ -1,6 +1,7 @@
 """Write a PyTorch dataset into RAM."""
 
 import torch
+
 from ..consts import PIN_MEMORY
 
 
