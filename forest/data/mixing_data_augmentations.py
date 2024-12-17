@@ -42,6 +42,13 @@ class Mixup(torch.nn.Module):
         self, outputs, extra_labels, lmb=1.0, loss_fn=torch.nn.CrossEntropyLoss()
     ):
         """Compute the corrected loss under consideration of the mixing."""
+
+        # extra_labelsが単一のテンソルの場合、リストに変換
+        if not isinstance(extra_labels, list):
+            extra_labels = [extra_labels]
+        # lmbがintやfloatの場合にもリストに変換 (extra_labelsの長さ分繰り返し)
+        if isinstance(lmb, (int, float)):
+            lmb = [lmb] * len(extra_labels)
         predictions = torch.argmax(outputs.data, dim=1)
         correct_preds = sum(
             [

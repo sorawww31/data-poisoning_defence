@@ -1,14 +1,75 @@
 """Repeatable code parts concerning optimization and training schedules."""
 
+import copy
 from collections import defaultdict
 
 import torch
 
 from ..consts import BENCHMARK, NON_BLOCKING
+from ..utils import cw_loss
 from .batched_attacks import construct_attack
 from .utils import print_and_save_stats
 
 torch.backends.cudnn.benchmark = BENCHMARK
+
+
+def renewal_wolfecondition_stepsize(
+    kettle, args, defs, model, loss_fn, alpha, optimizer_lr, targetset, setup
+):
+    c2, c1 = args.wolfe
+
+    copy_model = copy.deepcopy(model)
+    intended_class = kettle.poison_setup["intended_class"]
+    intended_labels = torch.tensor(intended_class).to(
+        device=setup["device"], dtype=torch.long
+    )
+    target_images = torch.stack([data[0] for data in targetset]).to(**setup)
+    fx = loss_fn(copy_model(target_images), intended_labels)  # 損失を計算
+
+    nabla_fx = torch.autograd.grad(fx, copy_model.parameters(), create_graph=True)
+
+    # Wolfe条件を満たす学習率を探索
+    max_iters = 40  # 最大で40回の反復を行う
+    omega = 0.75  # 学習率の縮小係数
+    wolfe_satisfied = False
+
+    for _ in range(max_iters):
+        # 新しい学習率alphaを使用してモデルを更新
+        copy_model_temp = copy.deepcopy(model)
+        for p, g in zip(copy_model_temp.parameters(), nabla_fx):
+            p.data -= alpha * g
+
+        # 新しい損失を計算
+        fx_new = loss_fn(copy_model_temp(target_images), intended_labels)
+
+        # Wolfeの十分減少条件を確認
+        sufficient_decrease = fx_new <= fx - c1 * alpha * sum(
+            torch.dot(g.view(-1), p.view(-1))
+            for g, p in zip(nabla_fx, copy_model_temp.parameters())
+        )
+
+        if sufficient_decrease:
+            # Wolfeの曲率条件を確認
+            nabla_fx_new = torch.autograd.grad(
+                fx_new, copy_model_temp.parameters(), create_graph=True
+            )
+            curvature_condition = all(
+                torch.dot(nabla_fx_new[i].view(-1), nabla_fx[i].view(-1))
+                >= c2 * torch.dot(nabla_fx[i].view(-1), nabla_fx[i].view(-1))
+                for i in range(len(nabla_fx))
+            )
+            if curvature_condition:
+                wolfe_satisfied = True
+                break
+
+        # 学習率を縮小して再試行
+        alpha *= omega
+    if not wolfe_satisfied:
+        print(
+            "Wolfe条件を満たす学習率が見つかりませんでした。最小のalphaを使用します。"
+        )
+
+    return alpha
 
 
 def run_step(
@@ -50,7 +111,7 @@ def run_step(
             num_classes=len(kettle.trainset.classes),
             setup=kettle.setup,
         )
-
+    current_lr = optimizer.param_groups[0]["lr"]
     # Compute flag to activate defenses:
     # Here we are writing these conditions out explicitely:
     if poison_delta is None:  # this is the case if the training set is clean
@@ -164,6 +225,21 @@ def run_step(
 
         loss.backward()
         epoch_loss += loss.item()
+
+        if (epoch > kettle.args.linesearch_epoch) and kettle.args.wolfe:
+            alpha = renewal_wolfecondition_stepsize(
+                kettle,
+                kettle.args,
+                defs,
+                model,
+                loss_fn,
+                current_lr * 2,
+                optimizer.param_groups[0]["lr"],
+                kettle.targetset,
+                kettle.setup,
+            )
+            optimizer.param_groups[0]["lr"] = alpha
+            current_lr = alpha
 
         if activate_defenses:
             with torch.no_grad():
