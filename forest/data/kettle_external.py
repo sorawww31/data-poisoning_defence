@@ -1,10 +1,12 @@
 """Data class, holding information about dataloaders and poison ids."""
 
 import pickle
+import warnings
 
 import torch
 
 from ..consts import NORMALIZE, PIN_MEMORY, cifar10_mean, cifar10_std
+from .cached_dataset import CachedDataset
 from .kettle_base import _Kettle
 
 

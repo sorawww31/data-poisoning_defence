@@ -7,7 +7,7 @@ from PIL import Image
 from forest.data import datasets
 
 from ..consts import BENCHMARK, NON_BLOCKING
-from ..utils import bypass_last_layer
+from ..utils import bypass_last_layer, cw_loss
 
 torch.backends.cudnn.benchmark = BENCHMARK
 import random
