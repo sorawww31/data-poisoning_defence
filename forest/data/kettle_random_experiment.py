@@ -20,7 +20,6 @@ class KettleRandom(_Kettle):
         subset of the training data within some bounds."""
         self.random_construction()
 
-
     def random_construction(self):
         """Construct according to random selection.
 
@@ -36,16 +35,26 @@ class KettleRandom(_Kettle):
             else:
                 self.init_seed = int(self.args.poisonkey)
             set_random_seed(self.init_seed)
-            print(f'Initializing Poison data (chosen images, examples, targets, labels) with random seed {self.init_seed}')
+            print(
+                f"Initializing Poison data (chosen images, examples, targets, labels) with random seed {self.init_seed}"
+            )
         else:
             rank = torch.distributed.get_rank()
             if self.args.poisonkey is None:
-                init_seed = torch.randint(0, 2**32 - 1, [1], device=self.setup['device'])
+                init_seed = torch.randint(
+                    0, 2**32 - 1, [1], device=self.setup["device"]
+                )
             else:
-                init_seed = torch.as_tensor(int(self.args.poisonkey), dtype=torch.int64, device=self.setup['device'])
+                init_seed = torch.as_tensor(
+                    int(self.args.poisonkey),
+                    dtype=torch.int64,
+                    device=self.setup["device"],
+                )
             torch.distributed.broadcast(init_seed, src=0)
             if rank == 0:
-                print(f'Initializing Poison data (chosen images, examples, targets, labels) with random seed {init_seed.item()}')
+                print(
+                    f"Initializing Poison data (chosen images, examples, targets, labels) with random seed {init_seed.item()}"
+                )
             self.init_seed = init_seed.item()
             set_random_seed(self.init_seed)
         # Parse threat model
@@ -71,39 +80,66 @@ class KettleRandom(_Kettle):
         intended_class = [np.random.choice(list_intentions)] * self.args.targets
 
         if self.args.targets < 1:
-            poison_setup = dict(poison_budget=0, target_num=0,
-                                poison_class=np.random.randint(num_classes), target_class=None,
-                                intended_class=[np.random.randint(num_classes)])
-            warnings.warn('Number of targets set to 0.')
+            poison_setup = dict(
+                poison_budget=0,
+                target_num=0,
+                poison_class=np.random.randint(num_classes),
+                target_class=None,
+                intended_class=[np.random.randint(num_classes)],
+            )
+            warnings.warn("Number of targets set to 0.")
             return poison_setup
 
-        if self.args.threatmodel == 'single-class':
+        if self.args.threatmodel == "single-class":
             poison_class = intended_class[0]
-            poison_setup = dict(poison_budget=self.args.budget, target_num=self.args.targets,
-                                poison_class=poison_class, target_class=target_class, intended_class=intended_class)
-        elif self.args.threatmodel == 'third-party':
+            poison_setup = dict(
+                poison_budget=self.args.budget,
+                target_num=self.args.targets,
+                poison_class=poison_class,
+                target_class=target_class,
+                intended_class=intended_class,
+            )
+        elif self.args.threatmodel == "third-party":
             list_intentions.remove(intended_class[0])
             poison_class = np.random.choice(list_intentions)
-            poison_setup = dict(poison_budget=self.args.budget, target_num=self.args.targets,
-                                poison_class=poison_class, target_class=target_class, intended_class=intended_class)
-        elif self.args.threatmodel == 'self-betrayal':
+            poison_setup = dict(
+                poison_budget=self.args.budget,
+                target_num=self.args.targets,
+                poison_class=poison_class,
+                target_class=target_class,
+                intended_class=intended_class,
+            )
+        elif self.args.threatmodel == "self-betrayal":
             poison_class = target_class
-            poison_setup = dict(poison_budget=self.args.budget, target_num=self.args.targets,
-                                poison_class=poison_class, target_class=target_class, intended_class=intended_class)
-        elif self.args.threatmodel == 'random-subset':
+            poison_setup = dict(
+                poison_budget=self.args.budget,
+                target_num=self.args.targets,
+                poison_class=poison_class,
+                target_class=target_class,
+                intended_class=intended_class,
+            )
+        elif self.args.threatmodel == "random-subset":
             poison_class = None
-            poison_setup = dict(poison_budget=self.args.budget,
-                                target_num=self.args.targets, poison_class=None, target_class=target_class,
-                                intended_class=intended_class)
-        elif self.args.threatmodel == 'random-subset-random-targets':
+            poison_setup = dict(
+                poison_budget=self.args.budget,
+                target_num=self.args.targets,
+                poison_class=None,
+                target_class=target_class,
+                intended_class=intended_class,
+            )
+        elif self.args.threatmodel == "random-subset-random-targets":
             target_class = None
             intended_class = np.random.randint(num_classes, size=self.args.targets)
             poison_class = None
-            poison_setup = dict(poison_budget=self.args.budget,
-                                target_num=self.args.targets, poison_class=None, target_class=None,
-                                intended_class=intended_class)
+            poison_setup = dict(
+                poison_budget=self.args.budget,
+                target_num=self.args.targets,
+                poison_class=None,
+                target_class=None,
+                intended_class=intended_class,
+            )
         else:
-            raise NotImplementedError('Unknown threat model.')
+            raise NotImplementedError("Unknown threat model.")
 
         return poison_setup
 
@@ -117,47 +153,67 @@ class KettleRandom(_Kettle):
 
         """
         # Poisons:
-        if self.poison_setup['poison_class'] is not None:
+        if self.poison_setup["poison_class"] is not None:
             class_ids = []
-            for index in range(len(self.trainset)):  # we actually iterate this way not to iterate over the images
+            for index in range(
+                len(self.trainset)
+            ):  # we actually iterate this way not to iterate over the images
                 target, idx = self.trainset.get_target(index)
-                if target == self.poison_setup['poison_class']:
+                if target == self.poison_setup["poison_class"]:
                     class_ids.append(idx)
 
             poison_num = int(np.ceil(self.args.budget * len(self.trainset)))
             if len(class_ids) < poison_num:
-                warnings.warn(f'Training set is too small for requested poison budget. \n'
-                              f'Budget will be reduced to maximal size {len(class_ids)}')
+                warnings.warn(
+                    f"Training set is too small for requested poison budget. \n"
+                    f"Budget will be reduced to maximal size {len(class_ids)}"
+                )
                 poison_num = len(class_ids)
-            self.poison_ids = torch.tensor(np.random.choice(
-                class_ids, size=poison_num, replace=False), dtype=torch.long)
+            self.poison_ids = torch.tensor(
+                np.random.choice(class_ids, size=poison_num, replace=False),
+                dtype=torch.long,
+            )
         else:
             total_ids = []
-            for index in range(len(self.trainset)):  # we actually iterate this way not to iterate over the images
+            for index in range(
+                len(self.trainset)
+            ):  # we actually iterate this way not to iterate over the images
                 _, idx = self.trainset.get_target(index)
                 total_ids.append(idx)
             poison_num = int(np.ceil(self.args.budget * len(self.trainset)))
             if len(total_ids) < poison_num:
-                warnings.warn(f'Training set is too small for requested poison budget. \n'
-                              f'Budget will be reduced to maximal size {len(total_ids)}')
+                warnings.warn(
+                    f"Training set is too small for requested poison budget. \n"
+                    f"Budget will be reduced to maximal size {len(total_ids)}"
+                )
                 poison_num = len(total_ids)
-            self.poison_ids = torch.tensor(np.random.choice(
-                total_ids, size=poison_num, replace=False), dtype=torch.long)
+            self.poison_ids = torch.tensor(
+                np.random.choice(total_ids, size=poison_num, replace=False),
+                dtype=torch.long,
+            )
 
         # Targets:
-        if self.poison_setup['target_class'] is not None:
+        if self.poison_setup["target_class"] is not None:
             class_ids = []
-            for index in range(len(self.validset)):  # we actually iterate this way not to iterate over the images
+            for index in range(
+                len(self.validset)
+            ):  # we actually iterate this way not to iterate over the images
                 target, idx = self.validset.get_target(index)
-                if target == self.poison_setup['target_class']:
+                if target == self.poison_setup["target_class"]:
                     class_ids.append(idx)
-            self.target_ids = np.random.choice(class_ids, size=self.args.targets, replace=False)
+            self.target_ids = np.random.choice(
+                class_ids, size=self.args.targets, replace=False
+            )
         else:
             total_ids = []
-            for index in range(len(self.validset)):  # we actually iterate this way not to iterate over the images
+            for index in range(
+                len(self.validset)
+            ):  # we actually iterate this way not to iterate over the images
                 _, idx = self.validset.get_target(index)
                 total_ids.append(idx)
-            self.target_ids = np.random.choice(total_ids, size=self.args.targets, replace=False)
+            self.target_ids = np.random.choice(
+                total_ids, size=self.args.targets, replace=False
+            )
 
         targetset = Subset(self.validset, indices=self.target_ids)
         valid_indices = []

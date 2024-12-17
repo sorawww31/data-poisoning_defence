@@ -1,8 +1,9 @@
 """Helper functions for context managing."""
+
 import torch
 
 
-class GPUContext():
+class GPUContext:
     """GPU context for quick (code-wise) moves to and from GPU."""
 
     def __init__(self, setup, model):
@@ -21,4 +22,4 @@ class GPUContext():
         """Return model to CPU."""
         if torch.cuda.device_count() > 1:
             model = self.model.module
-        self.model.to(device=torch.device('cpu'))
+        self.model.to(device=torch.device("cpu"))

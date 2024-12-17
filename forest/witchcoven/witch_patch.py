@@ -31,8 +31,19 @@ class WitchPatch(_Witch):
             poison_img = img.to(**self.setup)
             delta_slice = torch.zeros_like(poison_img)
             # hacky, but best way I can think of to not redo brewing
-            diff_patch = self.patch - poison_img[:, poison_img.shape[1] - self.patch.shape[1]:, poison_img.shape[2] - self.patch.shape[2]:]
-            delta_slice[:, delta_slice.shape[1] - self.patch.shape[1]:, delta_slice.shape[2] - self.patch.shape[2]:] = diff_patch
+            diff_patch = (
+                self.patch
+                - poison_img[
+                    :,
+                    poison_img.shape[1] - self.patch.shape[1] :,
+                    poison_img.shape[2] - self.patch.shape[2] :,
+                ]
+            )
+            delta_slice[
+                :,
+                delta_slice.shape[1] - self.patch.shape[1] :,
+                delta_slice.shape[2] - self.patch.shape[2] :,
+            ] = diff_patch
             poison_delta[poison_id] = delta_slice.cpu()
 
         # here we hackily add the patches to the target images
@@ -44,7 +55,7 @@ class WitchPatch(_Witch):
         return patch
 
     def patch_targets(self, kettle):
-        if self.args.load_patch == '':
+        if self.args.load_patch == "":
             # here args.eps is a standin for sqrt(l0) bounds on our patch :)
             patch = self._create_patch([3, int(self.args.eps), int(self.args.eps)])
         else:
@@ -59,7 +70,18 @@ class WitchPatch(_Witch):
         for idx, (target_img, label, image_id) in enumerate(kettle.targetset):
             target_img = target_img.to(**self.setup)
             delta_slice = torch.zeros_like(target_img).squeeze(0)
-            diff_patch = self.patch - target_img[:, target_img.shape[1] - self.patch.shape[1]:, target_img.shape[2] - self.patch.shape[2]:]
-            delta_slice[:, delta_slice.shape[1] - self.patch.shape[1]:, delta_slice.shape[2] - self.patch.shape[2]:] = diff_patch
+            diff_patch = (
+                self.patch
+                - target_img[
+                    :,
+                    target_img.shape[1] - self.patch.shape[1] :,
+                    target_img.shape[2] - self.patch.shape[2] :,
+                ]
+            )
+            delta_slice[
+                :,
+                delta_slice.shape[1] - self.patch.shape[1] :,
+                delta_slice.shape[2] - self.patch.shape[2] :,
+            ] = diff_patch
             target_delta.append(delta_slice.cpu())
         kettle.targetset = datasets.Deltaset(kettle.targetset, target_delta)

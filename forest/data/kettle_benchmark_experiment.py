@@ -17,30 +17,38 @@ class KettleBenchmark(_Kettle):
 
         Using the subset of the training data within some bounds.
         """
-        with open(self.args.benchmark, 'rb') as handle:
+        with open(self.args.benchmark, "rb") as handle:
             setup_dict = pickle.load(handle)
         self.benchmark_construction(setup_dict[self.args.benchmark_idx])
 
-
     def benchmark_construction(self, setup_dict):
         """Construct according to the benchmark."""
-        target_class, poison_class = setup_dict['target class'], setup_dict['base class']
+        target_class, poison_class = (
+            setup_dict["target class"],
+            setup_dict["base class"],
+        )
 
-        budget = len(setup_dict['base indices']) / len(self.trainset)
-        self.poison_setup = dict(poison_budget=budget,
-                                 target_num=self.args.targets, poison_class=poison_class, target_class=target_class,
-                                 intended_class=[poison_class])
+        budget = len(setup_dict["base indices"]) / len(self.trainset)
+        self.poison_setup = dict(
+            poison_budget=budget,
+            target_num=self.args.targets,
+            poison_class=poison_class,
+            target_class=target_class,
+            intended_class=[poison_class],
+        )
         self.init_seed = self.args.poisonkey
-        self.poisonset, self.targetset, self.validset = self._choose_poisons_benchmark(setup_dict)
+        self.poisonset, self.targetset, self.validset = self._choose_poisons_benchmark(
+            setup_dict
+        )
 
     def _choose_poisons_benchmark(self, setup_dict):
         # poisons
-        class_ids = setup_dict['base indices']
+        class_ids = setup_dict["base indices"]
         poison_num = len(class_ids)
         self.poison_ids = class_ids
 
         # the target
-        self.target_ids = [setup_dict['target index']]
+        self.target_ids = [setup_dict["target index"]]
         # self.target_ids = setup_dict['target index']
 
         targetset = Subset(self.validset, indices=self.target_ids)

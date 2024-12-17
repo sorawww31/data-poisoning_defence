@@ -35,16 +35,22 @@ class _VictimSingle(_VictimBase):
         else:
             self.model_init_seed = self.args.modelkey
         set_random_seed(self.model_init_seed)
-        self.model, self.defs, self.optimizer, self.scheduler = self._initialize_model(self.args.net[0], pretrain=pretrain)
+        self.model, self.defs, self.optimizer, self.scheduler = self._initialize_model(
+            self.args.net[0], pretrain=pretrain
+        )
 
         self.model.to(**self.setup)
         if torch.cuda.device_count() > 1:
             self.model = torch.nn.DataParallel(self.model)
             self.model.frozen = self.model.module.frozen
-        print(f'{self.args.net[0]} model initialized with random key {self.model_init_seed}.')
+        print(
+            f"{self.args.net[0]} model initialized with random key {self.model_init_seed}."
+        )
         print(repr(self.defs))
 
-    def reinitialize_last_layer(self, reduce_lr_factor=1.0, seed=None, keep_last_layer=False):
+    def reinitialize_last_layer(
+        self, reduce_lr_factor=1.0, seed=None, keep_last_layer=False
+    ):
         if not keep_last_layer:
             if self.args.modelkey is None:
                 if seed is None:
@@ -57,11 +63,19 @@ class _VictimSingle(_VictimBase):
 
             # We construct a full replacement model, so that the seed matches up with the initial seed,
             # even if all of the model except for the last layer will be immediately discarded.
-            replacement_model = get_model(self.args.net[0], self.args.dataset, pretrained=self.args.pretrained_model)
+            replacement_model = get_model(
+                self.args.net[0],
+                self.args.dataset,
+                pretrained=self.args.pretrained_model,
+            )
 
             # Rebuild model with new last layer
             frozen = self.model.frozen
-            self.model = torch.nn.Sequential(*list(self.model.children())[:-1], torch.nn.Flatten(), list(replacement_model.children())[-1])
+            self.model = torch.nn.Sequential(
+                *list(self.model.children())[:-1],
+                torch.nn.Flatten(),
+                list(replacement_model.children())[-1],
+            )
             self.model.frozen = frozen
             self.model.to(**self.setup)
             if torch.cuda.device_count() > 1:
@@ -72,8 +86,12 @@ class _VictimSingle(_VictimBase):
         # Reinitialize optimizers here
         self.defs = training_strategy(self.args.net[0], self.args)
         self.defs.lr *= reduce_lr_factor
-        self.optimizer, self.scheduler = get_optimizers(self.model, self.args, self.defs)
-        print(f'{self.args.net[0]} last layer re-initialized with random key {self.model_init_seed}.')
+        self.optimizer, self.scheduler = get_optimizers(
+            self.model, self.args, self.defs
+        )
+        print(
+            f"{self.args.net[0]} last layer re-initialized with random key {self.model_init_seed}."
+        )
         print(repr(self.defs))
 
     def freeze_feature_extractor(self):
@@ -91,7 +109,6 @@ class _VictimSingle(_VictimBase):
     def load_feature_representation(self):
         self.model = copy.deepcopy(self.clean_model)
 
-
     """ METHODS FOR (CLEAN) TRAINING AND TESTING OF BREWED POISONS"""
 
     def _iterate(self, kettle, poison_delta, max_epoch=None, pretraining_phase=False):
@@ -103,7 +120,14 @@ class _VictimSingle(_VictimBase):
 
         single_setup = (self.model, self.defs, self.optimizer, self.scheduler)
         for self.epoch in range(max_epoch):
-            self._step(kettle, poison_delta, self.epoch, stats, *single_setup, pretraining_phase)
+            self._step(
+                kettle,
+                poison_delta,
+                self.epoch,
+                stats,
+                *single_setup,
+                pretraining_phase,
+            )
             if self.args.dryrun:
                 break
         return stats
@@ -112,16 +136,20 @@ class _VictimSingle(_VictimBase):
         """Step through a model epoch. Optionally: minimize target loss."""
         stats = defaultdict(list)
 
-
         single_setup = (self.model, self.defs, self.optimizer, self.scheduler)
         self._step(kettle, poison_delta, self.epoch, stats, *single_setup)
         self.epoch += 1
         if self.epoch > self.defs.epochs:
             self.epoch = 0
-            print('Model reset to epoch 0.')
-            self.model, self.defs, self.optimizer, self.scheduler = self._initialize_model(self.args.net[0])
+            print("Model reset to epoch 0.")
+            self.model, self.defs, self.optimizer, self.scheduler = (
+                self._initialize_model(self.args.net[0])
+            )
             self.model.to(**self.setup)
-            if torch.cuda.device_count() > 1 and 'meta' not in self.defs.novel_defense['type']:
+            if (
+                torch.cuda.device_count() > 1
+                and "meta" not in self.defs.novel_defense["type"]
+            ):
                 self.model = torch.nn.DataParallel(self.model)
                 self.model.frozen = self.model.module.frozen
         return stats
@@ -130,10 +158,12 @@ class _VictimSingle(_VictimBase):
 
     def eval(self, dropout=False):
         """Switch everything into evaluation mode."""
+
         def apply_dropout(m):
             """https://discuss.pytorch.org/t/dropout-at-test-time-in-densenet/6738/6."""
             if type(m) == torch.nn.Dropout:
                 m.train()
+
         self.model.eval()
         if dropout:
             self.model.apply(apply_dropout)

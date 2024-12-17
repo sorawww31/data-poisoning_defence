@@ -26,33 +26,43 @@ class KettleDeterministic(_Kettle):
         Poisons are always the first n occurences of the given class.
         [This is the same setup as in metapoison]
         """
-        if self.args.threatmodel != 'single-class':
+        if self.args.threatmodel != "single-class":
             raise NotImplementedError()
 
-        split = self.args.poisonkey.split('-')
+        split = self.args.poisonkey.split("-")
         if len(split) != 3:
-            raise ValueError('Invalid poison triplet supplied.')
+            raise ValueError("Invalid poison triplet supplied.")
         else:
             target_class, poison_class, target_id = [int(s) for s in split]
         self.init_seed = self.args.poisonkey
-        print(f'Initializing Poison data (chosen images, examples, targets, labels) as {self.args.poisonkey}')
+        print(
+            f"Initializing Poison data (chosen images, examples, targets, labels) as {self.args.poisonkey}"
+        )
 
-        self.poison_setup = dict(poison_budget=self.args.budget,
-                                 target_num=self.args.targets, poison_class=poison_class, target_class=target_class,
-                                 intended_class=[poison_class])
-        self.poisonset, self.targetset, self.validset = self._choose_poisons_deterministic(target_id)
+        self.poison_setup = dict(
+            poison_budget=self.args.budget,
+            target_num=self.args.targets,
+            poison_class=poison_class,
+            target_class=target_class,
+            intended_class=[poison_class],
+        )
+        self.poisonset, self.targetset, self.validset = (
+            self._choose_poisons_deterministic(target_id)
+        )
 
     def _choose_poisons_deterministic(self, target_id):
         # poisons
         class_ids = []
-        for index in range(len(self.trainset)):  # we actually iterate this way not to iterate over the images
+        for index in range(
+            len(self.trainset)
+        ):  # we actually iterate this way not to iterate over the images
             target, idx = self.trainset.get_target(index)
-            if target == self.poison_setup['poison_class']:
+            if target == self.poison_setup["poison_class"]:
                 class_ids.append(idx)
 
         poison_num = int(np.ceil(self.args.budget * len(self.trainset)))
         if len(class_ids) < poison_num:
-            warnings.warn(f'Training set is too small for requested poison budget.')
+            warnings.warn(f"Training set is too small for requested poison budget.")
             poison_num = len(class_ids)
         self.poison_ids = class_ids[:poison_num]
 
