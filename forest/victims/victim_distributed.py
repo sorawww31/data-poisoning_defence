@@ -75,7 +75,7 @@ class _VictimDistributed(_VictimSingle):
     def reinitialize_last_layer(self, reduce_lr_factor=1.0, seed=None):
         if self.args.modelkey is None:
             if seed is None:
-                self.model_init_seed = np.random.randint(0, 2**32 - 1)
+                init_seed = np.random.randint(0, 2**32 - 1)
             else:
                 self.model_init_seed = seed
         else:
