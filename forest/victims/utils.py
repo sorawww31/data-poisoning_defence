@@ -54,6 +54,6 @@ def print_and_save_stats(
             stats["target_losses_clean"].append(stats["target_losses_clean"][-1])
 
         print(
-            f"Epoch: {epoch:<3}| lr: {current_lr:.8f} | "
+            f"Epoch: {epoch:<3}| lr: {current_lr:.9f} | "
             f'Training    loss is {stats["train_losses"][-1]:7.4f}, train acc: {stats["train_accs"][-1]:7.2%} | '
         )
