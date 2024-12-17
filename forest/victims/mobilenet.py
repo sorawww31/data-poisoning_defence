@@ -5,7 +5,6 @@ This code is taken from https://github.com/aks2203/poisoning-benchmark/blob/mast
 
 """
 
-
 """MobileNetV2 in PyTorch.
 
 See the paper "Inverted Residuals and Linear Bottlenecks:

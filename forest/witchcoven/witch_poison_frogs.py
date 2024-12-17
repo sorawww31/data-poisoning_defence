@@ -21,8 +21,11 @@ class WitchFrogs(_Witch):
 
     """
 
-    def _define_objective(self, inputs, labels, criterion, targets, intended_classes, true_classes):
+    def _define_objective(
+        self, inputs, labels, criterion, targets, intended_classes, true_classes
+    ):
         """Implement the closure here."""
+
         def closure(model, optimizer, target_grad, target_clean_grad, target_gnorm):
             """This function will be evaluated on all GPUs."""  # noqa: D401
             # Carve up the model
@@ -33,7 +36,10 @@ class WitchFrogs(_Witch):
             outputs_targets = feature_model(targets)
             prediction = (last_layer(outputs).data.argmax(dim=1) == labels).sum()
 
-            feature_loss = (outputs.mean(dim=0, keepdim=True) - outputs_targets).pow(2).mean()
+            feature_loss = (
+                (outputs.mean(dim=0, keepdim=True) - outputs_targets).pow(2).mean()
+            )
             feature_loss.backward(retain_graph=self.retain)
             return feature_loss.detach().cpu(), prediction.detach().cpu()
+
         return closure
