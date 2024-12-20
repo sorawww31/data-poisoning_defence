@@ -124,7 +124,7 @@ def options():
         help="Disable correcting the loss term appropriately after data mixing.",
     )
     parser.add_argument(
-        "--mixing_strength", default=None, type=float, help="How strong is the mixing."
+        "--mixing_strength", default=1.0, type=float, help="How strong is the mixing."
     )
 
     parser.add_argument(

@@ -213,7 +213,7 @@ class _Witch():
     def _batched_step(self, poison_delta, poison_bounds, example, victim, kettle):
         """Take a step toward minmizing the current target loss."""
         inputs, labels, ids = example
-
+        poison_delta.grad = torch.zeros_like(poison_delta)
         inputs = inputs.to(**self.setup)
         labels = labels.to(dtype=torch.long, device=self.setup['device'], non_blocking=NON_BLOCKING)
         # Check adversarial pattern ids

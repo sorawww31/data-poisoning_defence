@@ -108,7 +108,7 @@ CONSERVATIVE = Hyperparameters(
     weight_decay=5e-4,
     augmentations=True,
     privacy=dict(clip=None, noise=None, distribution=None),
-    validate=10,
+    validate=5,
     novel_defense=dict(type="", strength=16.0, target_selection="sep-half", steps=5),
     mixing_method=dict(type="", strength=0.0, correction=False),
     adaptive_attack=True,
