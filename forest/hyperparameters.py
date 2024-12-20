@@ -14,6 +14,8 @@ def training_strategy(model_name, args):
     """Parse training strategy."""
     if args.optimization == "conservative":
         defaults = CONSERVATIVE
+    elif args.optimization == "conservative_256":
+        defaults = CONSERVATIVE_256
     elif args.optimization == "private-gaussian":
         defaults = PRIVACY_GAUSSIAN
     elif args.optimization == "private-laplacian":
@@ -114,7 +116,22 @@ CONSERVATIVE = Hyperparameters(
     adaptive_attack=True,
     defend_features_only=False,
 )
-
+CONSERVATIVE_256 = Hyperparameters(
+    name="conservative_256",
+    lr=0.1,
+    epochs=40,
+    batch_size=256,
+    optimizer="SGD",
+    scheduler="linear",
+    weight_decay=5e-4,
+    augmentations=True,
+    privacy=dict(clip=None, noise=None, distribution=None),
+    validate=5,
+    novel_defense=dict(type="", strength=16.0, target_selection="sep-half", steps=5),
+    mixing_method=dict(type="", strength=0.0, correction=False),
+    adaptive_attack=True,
+    defend_features_only=False,
+)
 
 PRIVACY_GAUSSIAN = Hyperparameters(
     name="private-gaussian",

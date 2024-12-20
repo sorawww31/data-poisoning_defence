@@ -299,7 +299,7 @@ class _Kettle():
             data['poison_delta'] = poison_delta
             data['poison_ids'] = self.poison_ids
             data['target_images'] = [data for data in self.targetset]
-            name = f'{path}poisons_packed_{datetime.date.today()}.pth'
+            name = f'poisons_packed_{datetime.date.today()}.pth'
             torch.save([poison_delta, self.poison_ids], os.path.join(path, name))
 
         elif mode == 'limited':
@@ -372,7 +372,7 @@ class _Kettle():
             np.save(os.path.join(path, 'poisoned_training_labels.npy'), labels)
 
         elif mode == 'kettle-export':
-            with open(f'kette_{self.args.dataset}{self.args.model}.pkl', 'wb') as file:
+            with open(f'kette_{self.args.dataset}{self.args.modelkey}.pkl', 'wb') as file:
                 pickle.dump([self, poison_delta], file, protocol=pickle.HIGHEST_PROTOCOL)
 
         elif mode == 'benchmark':
