@@ -97,7 +97,7 @@ def run_step(
         else:
             train_loader = kettle.trainloader
         valid_loader = kettle.validloader
-
+    
     if "adversarial" in defs.novel_defense["type"]:
         attacker = construct_attack(
             defs.novel_defense,
@@ -280,7 +280,7 @@ def run_step(
 
         optimizer.step()
 
-        if defs.scheduler == "cyclic":
+        if defs.scheduler == "cyclic" or defs.scheduler == "cosine":
             scheduler.step()
         if kettle.args.dryrun:
             break
@@ -502,9 +502,21 @@ def get_optimizers(model, args, defs):
         optimizer = torch.optim.Adam(
             optimized_parameters, lr=defs.lr, weight_decay=defs.weight_decay
         )
-
+    # データセットごとの全画像数を定義する
+    if args.dataset == "CIFAR100":
+        total_images = 50_000
+    elif args.dataset == "CIFAR10":
+        total_images = 50_000
+    elif args.dataset == "MNIST":
+        total_images = 60_000
+    elif args.dataset in ["ImageNet", "ImageNet1k"]:
+        total_images = 1_281_167  # ImageNet-1kの場合
+    elif args.dataset == "TinyImageNet":
+        total_images = 100_000  # TinyImageNetの訓練画像数
+    else:
+        total_images = 50_000  # デフォルト値
     if defs.scheduler == "cyclic":
-        effective_batches = (50_000 // defs.batch_size) * defs.epochs
+        effective_batches = (total_images // defs.batch_size) * defs.epochs
         # todo: unmake this magic number that only works on cifar.
         # but when are we going to use this scheduler anyway?
         print(
@@ -527,6 +539,11 @@ def get_optimizers(model, args, defs):
         scheduler = torch.optim.lr_scheduler.MultiStepLR(
             optimizer, milestones=[10_000, 15_000, 25_000], gamma=1
         )
-
-        # Example: epochs=160 leads to drops at 60, 100, 140.
+    elif defs.scheduler == "cosine":
+        # コサインアニーリングの設定。T_max はエポック数、eta_min は最小学習率（例として lr の 0.1%）とする
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer,
+            T_max= (total_images // defs.batch_size) * defs.epochs,
+            #eta_min=defs.lr * 0.001,
+        )
     return optimizer, scheduler

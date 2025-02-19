@@ -26,6 +26,8 @@ def training_strategy(model_name, args):
         defaults = BASIC
     elif args.optimization == "defensive":
         defaults = DEFENSE
+    elif args.optimization == "imagenet":
+        defaults = IMAGENET_DEFAULT
     else:
         raise ValueError(f"Unknown opt. strategy {args.optimization}.")
     defs = Hyperparameters(**defaults.asdict())
@@ -95,6 +97,7 @@ class Hyperparameters:
     mixing_method: dict
     adaptive_attack: bool
     defend_features_only: bool
+    datasize: int = 0
 
     def asdict(self):
         return asdict(self)
@@ -119,7 +122,7 @@ CONSERVATIVE = Hyperparameters(
 CONSERVATIVE_256 = Hyperparameters(
     name="conservative_256",
     lr=0.1,
-    epochs=40,
+    epochs=100,
     batch_size=256,
     optimizer="SGD",
     scheduler="linear",
@@ -229,6 +232,22 @@ DEFENSE = Hyperparameters(
         target_selection="sep-half",
         steps=5,
     ),
+    mixing_method=dict(type="", strength=0.0, correction=False),
+    adaptive_attack=True,
+    defend_features_only=False,
+)
+IMAGENET_DEFAULT = Hyperparameters(
+    name="imagenet",
+    lr=0.1,
+    epochs=90,
+    batch_size=512,
+    optimizer="SGD",
+    scheduler="cosine",
+    weight_decay=5e-4,
+    augmentations=True,
+    privacy=dict(clip=None, noise=None, distribution=None),
+    validate=10,
+    novel_defense=dict(type="", strength=16.0, target_selection="sep-half", steps=5),
     mixing_method=dict(type="", strength=0.0, correction=False),
     adaptive_attack=True,
     defend_features_only=False,

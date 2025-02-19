@@ -52,6 +52,7 @@ if __name__ == "__main__":
     start_time = time.time()
     if args.pretrained_model:
         print("Loading pretrained model...")
+        model.save_feature_representation()
         stats_clean = None
     elif args.skip_clean_training:
         print("Skipping clean training...")
