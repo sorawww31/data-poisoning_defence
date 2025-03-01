@@ -18,11 +18,14 @@ This script goes through the following steps:
 
 import datetime
 import time
-
+import os
 import torch
 
 import forest
 from forest.filtering_defenses import get_defense
+import wandb
+from datetime import date 
+
 
 torch.backends.cudnn.benchmark = forest.consts.BENCHMARK
 torch.multiprocessing.set_sharing_strategy(forest.consts.SHARING_STRATEGY)
@@ -35,6 +38,13 @@ if args.deterministic:
 
 
 if __name__ == "__main__":
+    if args.wandb:
+        os.environ["WANDB_API_KEY"] = "b89e9995f493fd65200bf57ec07b503531990699"
+        print("Logging to wandb...")
+        wandb.init(
+            project=args.name, name=f"{args.name}_{args.poisonkey}_{date.today()}"
+        )
+        wandb.config.conservative = f"{args.name}"
 
     setup = forest.utils.system_startup(args)
 
@@ -57,11 +67,24 @@ if __name__ == "__main__":
     elif args.skip_clean_training:
         print("Skipping clean training...")
         stats_clean = None
+    elif args.load_poison is not None:
+        print("Loading poison delta...")
+        stats_clean = None
     else:
+        print("Training clean model from scratch...")
         stats_clean = model.train(data, max_epoch=args.max_epoch)
     train_time = time.time()
 
-    poison_delta = witch.brew(model, data)
+    if args.load_poison is not None:
+        path = args.load_poison
+        poison_delta = torch.load(path)
+        print(f'Poison delta loaded from {path}')
+    else:
+        poison_delta = witch.brew(model, data)
+        if args.save_poison is not None:
+            path = args.save_poison
+            torch.save(poison_delta, path)
+            print(f'Poison delta saved to {path}')
     brew_time = time.time()
 
     # Optional: apply a filtering defense
@@ -138,6 +161,10 @@ if __name__ == "__main__":
     # Export
     if args.save is not None:
         data.export_poison(poison_delta, path=args.poison_path, mode=args.save)
+
+
+    if args.wandb:
+        wandb.finish()
 
     print(datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p"))
     print("---------------------------------------------------")

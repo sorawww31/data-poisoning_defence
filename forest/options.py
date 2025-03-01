@@ -412,4 +412,22 @@ def options():
         default=30,
         help="Epoch of starting Line Search with wolfe condition",
     )
+    parser.add_argument(
+        "--save_poison",
+        type=str,
+        default=None,
+        help="Export poisons as a pt",
+    )
+    parser.add_argument(
+        "--load_poison",
+        type=str,
+        default=None,
+        help="Load poisons from a pt",
+    )
+    parser.add_argument(
+        "--wandb",
+        action="store_true",
+        default=False,
+        help="Use wandb for logging",
+    )
     return parser

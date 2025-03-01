@@ -4,13 +4,50 @@ import copy
 from collections import defaultdict
 
 import torch
-
+import torch.nn.functional as F
 from ..consts import BENCHMARK, NON_BLOCKING
 from ..utils import cw_loss
 from .batched_attacks import construct_attack
 from .utils import print_and_save_stats
 
 torch.backends.cudnn.benchmark = BENCHMARK
+import wandb
+
+def check_cosine_similarity(kettle, model, criterion, inputs, labels, step_size):
+    device = kettle.setup["device"]
+    model.eval()
+
+    target_images = torch.stack([data[0] for data in kettle.targetset]).to(device)
+    intended_class = kettle.poison_setup["intended_class"]
+    intended_labels = torch.tensor(intended_class, device=device, dtype=torch.long)
+
+    outputs_normal = model(inputs)
+    fx, _ = criterion(outputs_normal, labels)
+
+    # (B) grads_normal を取得
+    grads_normal = torch.autograd.grad(fx, model.parameters(), retain_graph=True)
+    grads_normal_flat = torch.cat([g.view(-1) for g in grads_normal])
+
+    # (C) ターゲットバッチの forward
+    outputs_target = model(target_images)
+    fx_target, _ = criterion(outputs_target, intended_labels)
+
+    # (D) grads_target を取得
+    grads_target = torch.autograd.grad(fx_target, model.parameters())
+    grads_target_flat = torch.cat([g.view(-1) for g in grads_target])
+
+    # (E) Cosine Similarity を一回で計算
+    cos_sim = F.cosine_similarity(grads_normal_flat, grads_target_flat, dim=0)
+    if kettle.args.wandb:
+        wandb.log(
+            {
+                "train_loss": fx.item(),
+                "target_loss": fx_target.item(),
+                "cosine_similarity": cos_sim.item(),
+                "step-size": step_size,
+            }
+        )
+    return cos_sim.item()
 
 
 def renewal_wolfecondition_stepsize(
@@ -86,6 +123,7 @@ def run_step(
 ):
 
     epoch_loss, total_preds, correct_preds = 0, 0, 0
+    ave_cos = 0
 
     if pretraining_phase:
         train_loader = kettle.pretrainloader
@@ -237,6 +275,7 @@ def run_step(
                 optimizer.param_groups[0]["lr"],
                 kettle.targetset,
                 kettle.setup,
+                
             )
             optimizer.param_groups[0]["lr"] = alpha
             current_lr = alpha
@@ -282,6 +321,11 @@ def run_step(
 
         if defs.scheduler == "cyclic" or defs.scheduler == "cosine":
             scheduler.step()
+
+        if kettle.args.wandb:
+            ave_cos += check_cosine_similarity(
+                kettle, model, criterion, inputs, labels, current_lr
+            )
         if kettle.args.dryrun:
             break
     if defs.scheduler == "linear":
@@ -311,6 +355,7 @@ def run_step(
 
     current_lr = optimizer.param_groups[0]["lr"]
     print_and_save_stats(
+        kettle,
         epoch,
         stats,
         current_lr,
@@ -322,6 +367,7 @@ def run_step(
         target_loss,
         target_clean_acc,
         target_clean_loss,
+        ave_cos / (batch + 1),
     )
 
 

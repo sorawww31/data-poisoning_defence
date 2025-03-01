@@ -1,7 +1,8 @@
 """Utilites related to training models."""
-
+import wandb
 
 def print_and_save_stats(
+    kettle,
     epoch,
     stats,
     current_lr,
@@ -13,6 +14,7 @@ def print_and_save_stats(
     target_loss,
     target_clean_acc,
     target_clean_loss,
+    cos_sim = None,
 ):
     """Print info into console and into the stats object."""
     stats["train_losses"].append(train_loss)
@@ -56,4 +58,15 @@ def print_and_save_stats(
         print(
             f"Epoch: {epoch:<3}| lr: {current_lr:.8f} | "
             f'Training    loss is {stats["train_losses"][-1]:7.4f}, train acc: {stats["train_accs"][-1]:7.2%} | '
+        )
+    
+    if cos_sim is not None:
+        stats["cos_sim"].append(cos_sim)
+
+    if kettle.args.wandb:
+        wandb.log(
+            {
+                "target_acc": target_acc,
+                "average_cosine_similarity": cos_sim,
+            }
         )

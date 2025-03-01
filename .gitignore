@@ -18,7 +18,8 @@ result/
 *.temp.sh
 
 # benchmarks
-
+wandb/
+*.pt
 poisons/benchmark_results/
 
 
