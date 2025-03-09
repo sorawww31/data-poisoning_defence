@@ -183,7 +183,7 @@ class _Kettle():
             else:
                 raise ValueError(f'Invalid diff. transformation given: {self.augmentations}.')
 
-            if self.mixing_method['type'] != '' or self.args.pmix:
+            if self.mixing_method['type'] != '':# or self.args.pmix:
                 if 'mixup' in self.mixing_method['type']:
                     nway = int(self.mixing_method['type'][0]) if 'way' in self.mixing_method['type'] else 2
                     self.mixer = Mixup(nway=nway, alpha=self.mixing_method['strength'])

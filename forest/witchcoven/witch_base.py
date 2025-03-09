@@ -13,7 +13,6 @@ from ..victims.batched_attacks import construct_attack
 from ..victims.training import _split_data
 from ..victims.victim_single import _VictimSingle
 
-
 class _Witch():
     """Brew poison with given arguments.
 
@@ -235,16 +234,16 @@ class _Witch():
 
             # Add additional clean data if mixing during the attack:
             if self.args.pmix:
-                if 'mix' in victim.defs.mixing_method['type']:   # this covers mixup, cutmix 4waymixup, maxup-mixup
-                    try:
-                        extra_data = next(self.extra_data)
-                    except StopIteration:
-                        self.extra_data = iter(kettle.trainloader)
-                        extra_data = next(self.extra_data)
-                    extra_inputs = extra_data[0].to(**self.setup)
-                    extra_labels = extra_data[1].to(dtype=torch.long, device=self.setup['device'], non_blocking=NON_BLOCKING)
-                    inputs = torch.cat((inputs, extra_inputs), dim=0)
-                    labels = torch.cat((labels, extra_labels), dim=0)
+                #if 'mix' in victim.defs.mixing_method['type']:   # this covers mixup, cutmix 4waymixup, maxup-mixup
+                try:
+                    extra_data = next(self.extra_data)
+                except StopIteration:
+                    self.extra_data = iter(kettle.trainloader)
+                    extra_data = next(self.extra_data)
+                extra_inputs = extra_data[0].to(**self.setup)
+                extra_labels = extra_data[1].to(dtype=torch.long, device=self.setup['device'], non_blocking=NON_BLOCKING)
+                inputs = torch.cat((inputs, extra_inputs), dim=0)
+                labels = torch.cat((labels, extra_labels), dim=0)
 
             # Perform differentiable data augmentation
             if self.args.paugment:
@@ -252,7 +251,9 @@ class _Witch():
 
             # Perform mixing
             if self.args.pmix:
-                inputs, extra_labels, mixing_lmb = kettle.mixer(inputs, labels)
+                from ..data.mixing_data_augmentations import Mixup, Cutmix
+                cutmix = Cutmix()
+                inputs, extra_labels, mixing_lmb = cutmix(inputs, labels)
 
             if self.args.padversarial is not None:
                 # The optimal choice of the 3rd and 4th argument here are debatable
@@ -280,7 +281,7 @@ class _Witch():
             # Change loss function to include corrective terms if mixing with correction
             if self.args.pmix:
                 def criterion(outputs, labels):
-                    loss, pred = kettle.mixer.corrected_loss(outputs, extra_labels, lmb=mixing_lmb, loss_fn=loss_fn)
+                    loss, pred = cutmix.corrected_loss(outputs, extra_labels, lmb=mixing_lmb, loss_fn=loss_fn)
                     return loss
             else:
                 criterion = loss_fn
