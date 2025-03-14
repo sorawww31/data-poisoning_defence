@@ -15,6 +15,7 @@ def print_and_save_stats(
     target_clean_acc,
     target_clean_loss,
     cos_sim = None,
+    ranks = None
 ):
     """Print info into console and into the stats object."""
     stats["train_losses"].append(train_loss)
@@ -41,6 +42,7 @@ def print_and_save_stats(
             f"Epoch: {epoch:<3}| lr: {current_lr:.8f} | "
             f"Target adv. loss is {target_loss:7.4f}, fool  acc: {target_acc:7.2%} | "
             f"Target orig. loss is {target_clean_loss:7.4f}, orig. acc: {target_clean_acc:7.2%} | "
+            f"Adversarial rank is {ranks}"
         )
 
     else:

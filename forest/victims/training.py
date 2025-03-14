@@ -341,7 +341,7 @@ def run_step(
             kettle.setup,
             kettle.args.dryrun,
         )
-        target_acc, target_loss, target_clean_acc, target_clean_loss = check_targets(
+        target_acc, target_loss, target_clean_acc, target_clean_loss, ranks = check_targets(
             model,
             loss_fn,
             kettle.targetset,
@@ -368,6 +368,7 @@ def run_step(
         target_clean_acc,
         target_clean_loss,
         ave_cos / (batch + 1),
+        ranks
     )
 
 
@@ -456,13 +457,21 @@ def check_targets(model, criterion, targetset, intended_class, original_class, s
                 predictions == original_labels
             ).sum().float() / predictions.size(0)
 
-            # print(f'Raw softmax output is {torch.softmax(outputs, dim=1)}, intended: {intended_class}')
-
+            # softmaxはクラス方向(dim=1)に対して計算する
+            softmax_outputs = torch.softmax(outputs, dim=1)
+            ranks = []
+            for i in range(softmax_outputs.shape[0]):
+                sorted_probs, sorted_indices = torch.sort(softmax_outputs[i], descending=True)
+                # 1-indexed の順位を計算
+                rank = (sorted_indices == intended_labels[i]).nonzero(as_tuple=True)[0].item() + 1
+                ranks.append(rank)
+            
         return (
             accuracy_intended.item(),
             loss_intended.item(),
             accuracy_clean.item(),
             loss_clean.item(),
+            ranks
         )
     else:
         return 0, 0, 0, 0
