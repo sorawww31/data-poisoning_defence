@@ -352,6 +352,7 @@ def run_step(
     else:
         predictions, valid_loss = None, None
         target_acc, target_loss, target_clean_acc, target_clean_loss = [None] * 4
+        ranks = None
 
     current_lr = optimizer.param_groups[0]["lr"]
     print_and_save_stats(
