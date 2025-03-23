@@ -104,6 +104,7 @@ def renewal_wolfecondition_stepsize(
         # 学習率を縮小して再試行
         alpha *= omega
     if not wolfe_satisfied:
+        return optimizer_lr
         print(
             "Wolfe条件を満たす学習率が見つかりませんでした。最小のalphaを使用します。"
         )
