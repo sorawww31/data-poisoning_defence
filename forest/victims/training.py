@@ -5,6 +5,7 @@ from collections import defaultdict
 
 import torch
 import torch.nn.functional as F
+
 from ..consts import BENCHMARK, NON_BLOCKING
 from ..utils import cw_loss
 from .batched_attacks import construct_attack
@@ -12,6 +13,7 @@ from .utils import print_and_save_stats
 
 torch.backends.cudnn.benchmark = BENCHMARK
 import wandb
+
 
 def check_cosine_similarity(kettle, model, criterion, inputs, labels, step_size):
     device = kettle.setup["device"]
@@ -124,7 +126,7 @@ def run_step(
 
     epoch_loss, total_preds, correct_preds = 0, 0, 0
     ave_cos = 0
-
+    ranks = []
     if pretraining_phase:
         train_loader = kettle.pretrainloader
         valid_loader = kettle.validloader
@@ -264,7 +266,7 @@ def run_step(
         loss.backward()
         epoch_loss += loss.item()
 
-        if (epoch > kettle.args.linesearch_epoch) and kettle.args.wolfe:
+        if (epoch > kettle.args.linesearch_epoch) and kettle.args.wolfe and poison_delta is not None:
             alpha = renewal_wolfecondition_stepsize(
                 kettle,
                 kettle.args,

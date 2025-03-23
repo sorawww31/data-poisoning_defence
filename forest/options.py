@@ -430,4 +430,10 @@ def options():
         default=False,
         help="Use wandb for logging",
     )
+    parser.add_argument(
+        "--only_brew",
+        action="store_true",
+        default=False,
+        help="create only poisons",
+    )
     return parser
