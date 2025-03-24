@@ -16,7 +16,7 @@ from .consts import NON_BLOCKING
 def system_startup(args=None, defs=None):
     """Decide and print GPU / CPU / hostname info."""
     device = (
-        torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+        torch.device(f"cuda:{args.cuda_number}") if torch.cuda.is_available() else torch.device("cpu")
     )
     setup = dict(device=device, dtype=torch.float, non_blocking=NON_BLOCKING)
     print("Currently evaluating -------------------------------:")

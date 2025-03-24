@@ -436,4 +436,10 @@ def options():
         default=False,
         help="create only poisons",
     )
+    parser.add_argument(
+        "--cuda_number",
+        type=int,
+        default=0,
+        help="which cuda you use",
+    )
     return parser
